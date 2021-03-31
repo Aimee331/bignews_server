@@ -5,7 +5,7 @@ module.exports = {
         const conn = mysql.createConnection({
             host: 'localhost',   // 你要连接的数据库服务器的地址
             user: 'root',        // 连接数据库服务器需要的用户名
-            password: '123456',        // 连接数据库服务器需要的密码
+            password: 'root',        // 连接数据库服务器需要的密码
             database: 'bignews1'      //你要连接的数据库的名字
         });
         conn.connect();
