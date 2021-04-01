@@ -33,8 +33,8 @@ router.post('/login', (req, res) => {
     const sqlStr = `select * from users where username="${username}" and password="${password}"`
     conn.query(sqlStr, (err, result) => {
         if (err) return res.json({ status: 1, message: '服务器错误' })
-        if (result.length) return res.json({ status: 1, message: '登录失败,用户名或密码错误!' })
-        let token = jwt.sign({ passsword: result[0].password }, 'bignews1', { expiresIn: 2 * 60 * 60 })
+        if (!result.length) return res.json({ status: 1, message: '登录失败,用户名或密码错误!' })
+        let token = jwt.sign({ username: username }, 'bignews1', { expiresIn: 12 * 60 * 60 })
         token = 'Bearer ' + token
         res.json({ status: 0, message: '登录成功', token: token })
     })

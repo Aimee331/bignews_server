@@ -18,12 +18,17 @@ app.use(express_jwt({
 }).unless({
     path: ['/api/login', '/api/register', /^\/uploads\/.*/] // 除了这两个接口，其他都需要认证
 }));
+
+//静态资源托管
+app.use('/uploads', express.static('uploads'))
 //引入路由中间件
 const api_router = require('./router/api_router')
 const my_router = require('./router/my_router')
+const admin_router = require('./router/admin_router')
 
 app.use('/api', api_router)
 app.use('/my', my_router)
+app.use('/admin', admin_router)
 
 //错误中间件处理
 app.use((err, req, res, next) => {
