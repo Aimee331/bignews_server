@@ -63,15 +63,15 @@ router.get('/category', (req, res) => {
 
 //热点图/get/index/hotpic
 router.get('/hotpic', (req, res) => {
-    let r = Math.random()
-    //随机返回五条文章数据的id和imgurl,但是不能写死,每次都要先获取articles里面的最新文章数据的条数
-    conn.query('select * from articles', (err, result) => {
+    // let r = Math.random()
+    conn.query('select * from articles where isDelete=0', (err, result) => {
         // console.log(err);
         if (err) return res.json({ msg: '服务器错误' })
-        r = Math.ceil(r * (result.length - 5))
-        const sqlStr = `select id,cover from articles limit ${r},5`
+        // r = Math.ceil(r * (result.length - 5))
+        let r = result.length - 5
+        const sqlStr = `select id,cover from articles where isDelete=0 order by date asc limit ${r},5`
         conn.query(sqlStr, (err, result) => {
-            // console.log(err);
+            console.log(err);
             if (err) return res.json({ msg: '服务器错误' })
             let newResult = JSON.stringify(result)
             //添加 Stirng对象的原型方法
@@ -91,11 +91,12 @@ router.get('/hotpic', (req, res) => {
 //文章热门排行/get/index/rank
 router.get('/rank', (req, res) => {
     //和热点图的思路一样
-    let r = Math.random()
-    conn.query('select * from articles', (err, result) => {
+    // let r = Math.random()
+    conn.query('select * from articles where isDelete=0', (err, result) => {
         if (err) return res.json({ msg: '服务器错误' })
-        r = Math.ceil(r * (result.length - 7))
-        const sqlStr = `select id,title from articles limit ${r},7`
+        // r = Math.ceil(r * (result.length - 7))
+        let r = result.length - 7
+        const sqlStr = `select id,title from articles where isDelete=0 order by \`read\` asc limit ${r},7`
         conn.query(sqlStr, (err, result) => {
             if (err) return res.json({ msg: '服务器错误' })
             res.json(result)
@@ -106,10 +107,11 @@ router.get('/rank', (req, res) => {
 //最新资讯/get/index/latest
 //随机返回五条数据,然后需要用多表连接计算出每一条数据的comments
 router.get('/latest', (req, res) => {
-    let r = Math.random()
-    conn.query('select * from articles', (err, result) => {
+    // let r = Math.random()
+    conn.query('select * from articles where isDelete=0', (err, result) => {
         if (err) return res.json({ msg: '服务器错误' })
-        r = Math.ceil(r * (result.length - 5))
+        // r = Math.ceil(r * (result.length - 5))
+        let r = result.length - 5
         let sqlConnStr = `select DISTINCT articles.id,categories.name,(SELECT COUNT(id) FROM comments where comments.articleId=articles.id and comments.state!='已拒绝') comments
 from articles
 left join comments on comments.articleId=articles.id
@@ -122,7 +124,7 @@ left join categories on categories.id=articles.categoryId`
             result.forEach(item => {
                 arr.push({ id: item.id, comments: item.comments, name: item.name })
             })
-            let sqlStr = `select id,title,content,cover,date,\`read\`,categoryId from articles limit ${r},5`
+            let sqlStr = `select id,title,content,cover,date,\`read\`,categoryId from articles where isDelete=0 order by date asc limit ${r},5`
             conn.query(sqlStr, (err, result) => {
                 // console.log(err);
                 if (err) return res.json({ msg: '服务器错误' })
@@ -146,11 +148,12 @@ left join categories on categories.id=articles.categoryId`
 //最新评论/get/index/latest_comment
 router.get('/latest_comment', (req, res) => {
     //先获取评论数据表里面的评论条数,再随机返回六条
-    let r = Math.random()
+    // let r = Math.random()
     conn.query('select * from comments', (err, result) => {
         if (err) return res.json({ msg: '服务器错误' })
-        r = Math.ceil(r * (result.length - 6))
-        let sqlStr = `select author,date,content from comments limit ${r},6`
+        // r = Math.ceil(r * (result.length - 6))
+        let r = result.length - 6
+        let sqlStr = `select author,date,content from comments order by date asc limit ${r},6`
         conn.query(sqlStr, (err, result) => {
             if (err) return res.json({ msg: '服务器错误' })
             result.forEach(item => {
@@ -166,11 +169,12 @@ router.get('/latest_comment', (req, res) => {
 
 //焦点关注/get/index/attention
 router.get('/attention', (req, res) => {
-    let r = Math.random()
-    conn.query('select * from articles', (err, result) => {
+    // let r = Math.random()
+    conn.query('select * from articles where isDelete=0', (err, result) => {
         if (err) return res.json({ msg: '服务器错误' })
-        r = Math.ceil(r * (result.length - 7))
-        const sqlStr = `select content from articles limit ${r},7`
+        // r = Math.ceil(r * (result.length - 7))
+        let r = result.length - 7
+        const sqlStr = `select content from articles where isDelete=0 order by \`read\` asc limit ${r},7`
         conn.query(sqlStr, (err, result) => {
             if (err) return res.json({ msg: '服务器错误' })
             result.forEach(item => {
