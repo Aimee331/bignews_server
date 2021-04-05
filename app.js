@@ -2,9 +2,9 @@
 const express = require('express')
 const cors = require('cors')
 const express_jwt = require('express-jwt')
-//创建服务
+    //创建服务
 const app = express()
-//解决跨域问题
+    //解决跨域问题
 app.use(cors())
 
 //统一验证token值
@@ -21,14 +21,20 @@ app.use(express_jwt({
 
 //静态资源托管
 app.use('/uploads', express.static('uploads'))
-//引入路由中间件
+    //引入路由中间件
 const api_router = require('./router/api_router')
 const my_router = require('./router/my_router')
-const admin_router = require('./router/admin_router')
+const admin_article_router = require('./router/admin_article_router')
+const index_router = require('./router/index_router')
+const admin_data_router = require('./router/admin_data_router')
+const admin_comment_router = require('./router/admin_comment_router')
 
 app.use('/api', api_router)
 app.use('/my', my_router)
-app.use('/admin', admin_router)
+app.use('/admin/article', admin_article_router)
+app.use('/index', index_router)
+app.use('/admin/data', admin_data_router)
+app.use('/admin/comment', admin_comment_router)
 
 //错误中间件处理
 app.use((err, req, res, next) => {
@@ -43,4 +49,3 @@ app.use((err, req, res, next) => {
 app.listen(9000, () => {
     console.log('app listening on port 9000');
 })
-
