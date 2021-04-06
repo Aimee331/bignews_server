@@ -25,7 +25,7 @@ router.use(express.urlencoded())
 
 //获取用户的基本信息get/my/userinfo
 router.get('/userinfo', (req, res) => {
-    const { username } = req.query
+    const { username } = req.user
     const sqlStr = `select id,username,nickname,email,userPic from users where username="${username}"`
     conn.query(sqlStr, (err, result) => {
         // console.log(err);
@@ -36,14 +36,23 @@ router.get('/userinfo', (req, res) => {
 //上传用户头像/post/my/uploadPic
 router.post('/uploadPic', upload.single('file_data'), (req, res) => {
     console.log(req.file);
-    res.json({ status: 0, message: '上传头像成功!' })
+    let src = 'http://127.0.0.1:9000/' + req.file.path
+    // console.log(src);
+    const { username } = req.user
+    // console.log(username);
+    conn.query(`update users set userPic="${src}" where username="${username}"`, (err, result) => {
+        if (err) return res.json({ msg: '服务器错误' })
+        res.json({ status: 0, message: '上传头像成功!' })
+    })
+
 })
 
 //更新用户基本信息/post/my/userinfo
 router.post('/userinfo', (req, res) => {
-    const { id, nickname, email, userPic } = req.body
-    const sqlStr = `update users set nickname="${nickname}",email="${email}",userPic="${userPic}" where id=${id}`
+    const { username, nickname, email } = req.body
+    const sqlStr = `update users set nickname="${nickname}",email="${email}" where username="${username}"`
     conn.query(sqlStr, (err, result) => {
+        // console.log(err);
         if (err) return res.json({ status: 1, message: '服务器错误' })
         res.json({ status: 0, message: '更新成功' })
     })
@@ -51,15 +60,16 @@ router.post('/userinfo', (req, res) => {
 
 //重置密码/post/my/updatepwd
 router.post('/updatepwd', (req, res) => {
-    const { id, oldPwd, newPwd } = req.body
+    const { oldPwd, newPwd } = req.body
+    const { username } = req.user
     //首先要验证旧密码是否正确
-    const sqlVerifyStr = `select password from users where id=${id}`
+    const sqlVerifyStr = `select password from users where username="${username}"`
     conn.query(sqlVerifyStr, (err, result) => {
         if (err) return res.json({ status: 1, message: '服务器错误' })
         console.log(result);
         if (result[0].password !== oldPwd) return res.json({ status: 0, message: '旧密码错误,请重新输入!' })
         //旧密码正确之后再操作数据库
-        const sqlStr = `update users set password="${newPwd}" where id=${id}`
+        const sqlStr = `update users set password="${newPwd}" where username="${username}"`
         conn.query(sqlStr, (err, result) => {
             if (err) return res.json({ status: 1, message: '服务器错误' })
             res.json({ status: 0, message: '恭喜您,密码修改成功' })
@@ -69,7 +79,9 @@ router.post('/updatepwd', (req, res) => {
 
 //获取文章分类列表/get/my/article/cates
 router.get('/article/cates', (req, res) => {
-    const sqlStr = `select * from categories`
+    const { Id } = req.query
+    let sqlStr = `select * from categories`
+    if (Id) sqlStr += ` where id=${Id}`
     conn.query(sqlStr, (err, result) => {
         if (err) return res.json({ status: 1, message: '服务器错误' })
         res.json({ status: 0, message: '获取文章分类列表成功', data: result })
@@ -88,8 +100,8 @@ router.post('/article/addcates', (req, res) => {
 
 //根据id删除文章分类/get/my/article/deletecate
 router.get('/article/deletecate', (req, res) => {
-    const { id } = req.query
-    const sqlStr = `delete from categories where id=${id}`
+    const { Id } = req.query
+    const sqlStr = `delete from categories where id=${Id}`
     conn.query(sqlStr, (err, result) => {
         // console.log(err);
         if (err) return res.json({ status: 1, message: '服务器错误' })

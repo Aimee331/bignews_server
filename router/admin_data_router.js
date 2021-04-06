@@ -35,12 +35,13 @@ router.get('/article', (req, res) => {
         if (err) return res.json({ msg: '服务器错误' })
         let arr = []
         result.forEach(item => arr.push(item.date))
-            // res.json(arr)
+        // res.json(arr)
         let set = new Set(arr)
-            // res.json([...set])
+        // res.json([...set])
         let date = []
-        arr = [...set]
-        console.log(arr);
+        arr = [...set];
+        // console.log(arr);
+        //立即执行函数前面的句子一定要加分号,不然函数会和前面的句子合并到一起,代码会报错
         (function loop(index) {
             conn.query(`select sum(1) as count from articles where date="${arr[index]}"`, (err, result) => {
                 if (err) return res.json({ msg: '服务器错误' })
@@ -68,38 +69,38 @@ router.get('/category', (req, res) => {
 
 //日文章访问量/get/admin/data/visit
 router.get('/visit', (req, res) => {
-        conn.query(`select date from articles order by date asc`, (err, result) => {
-            if (err) return res.json({ msg: '服务器错误' })
-            let arr = []
-            result.forEach(item => arr.push(item.date))
-            let set = new Set(arr)
-            arr = [...set]
-            let date = {}
-            console.log(arr);
-            (function loop(index) {
-                conn.query(`select sum(\`read\`) as total from articles where date="${arr[index]}"`, (err, result) => {
-                    if (err) return res.json({ msg: '服务器错误' })
-                    date[arr[index]] = result[0].total
-                    if (++index < arr.length) {
-                        loop(index)
-                    } else {
-                        res.json({ code: 200, msg: '日访问量统计数据获取成功', data: date })
-                    }
-                })
-            })(arr.length - 7)
-        })
+    conn.query(`select date from articles order by date asc`, (err, result) => {
+        if (err) return res.json({ msg: '服务器错误' })
+        let arr = []
+        result.forEach(item => arr.push(item.date))
+        let set = new Set(arr)
+        arr = [...set]
+        let date = {}
+        console.log(arr);
+        (function loop(index) {
+            conn.query(`select sum(\`read\`) as total from articles where date="${arr[index]}"`, (err, result) => {
+                if (err) return res.json({ msg: '服务器错误' })
+                date[arr[index]] = result[0].total
+                if (++index < arr.length) {
+                    loop(index)
+                } else {
+                    res.json({ code: 200, msg: '日访问量统计数据获取成功', data: date })
+                }
+            })
+        })(arr.length - 7)
     })
-    //用递归思想解决数组遍历里面含异步函数的问题
-    // var arr = ["a", "b", "c"];
-    // (function loop(index) {
-    //     setTimeout(function () {//用setTimeout模拟异步函数
-    //         console.log(arr[index]);
-    //         if (++index < arr.length) {
-    //             loop(index);
-    //         } else {
-    //             console.log("全部执行完毕");
-    //         }
-    //     }, 500);
-    // })(0);
-    //导出模块
+})
+//用递归思想解决数组遍历里面含异步函数的问题
+// var arr = ["a", "b", "c"];
+// (function loop(index) {
+//     setTimeout(function () {//用setTimeout模拟异步函数
+//         console.log(arr[index]);
+//         if (++index < arr.length) {
+//             loop(index);
+//         } else {
+//             console.log("全部执行完毕");
+//         }
+//     }, 500);
+// })(0);
+//导出模块
 module.exports = router

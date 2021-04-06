@@ -48,7 +48,7 @@ router.get('/query', (req, res) => {
                 delete option.isDelete
                 delete option.categoryId
             })
-            res.json({ totalCount: totalCount, totalPage: totalPage, data: result })
+            res.json({ status: 0, message: '获取成功', totalCount: totalCount, totalPage: totalPage, data: result })
         })
     })
 })
@@ -68,8 +68,8 @@ router.post('/publish', upload.single('cover'), (req, res) => {
     // })
     const sqlStr = `insert into articles (title,cover,categoryId,date,content,state,isDelete,author) values("${title}","${src}","${categoryId}","${date}","${content}","${state}",0,"${username}")`
     conn.query(sqlStr, (err, result) => {
-        if (err) return res.json({ msg: '发布失败' })
-        res.json({ msg: '发布成功' })
+        if (err) return res.json({ status: 1, msg: '发布失败' })
+        res.json({ status: 0, msg: '发布成功' })
     })
 })
 
@@ -78,9 +78,9 @@ router.get('/search', (req, res) => {
     const { id } = req.query
     const sqlStr = `select id,title,cover,date,content,state,author,categoryId from articles where id=${id}`
     conn.query(sqlStr, (err, result) => {
-        console.log(err);
+        // console.log(err);
         if (err) return res.json({ status: 1, message: '服务器错误' })
-        res.json({ code: 200, msg: '获取成功', data: result[0] })
+        res.json({ status: 0, message: '获取成功', data: result[0] })
     })
 })
 
@@ -95,9 +95,9 @@ router.post('/edit', upload.single('cover'), (req, res) => {
         sqlStr += ` where id=${id}`
     }
     conn.query(sqlStr, (err, result) => {
-        console.log(err);
-        if (err) return res.json({ msg: '服务器错误,修改失败' })
-        res.json({ msg: '修改成功' })
+        // console.log(err);
+        if (err) return res.json({ status: 1, message: '服务器错误,修改失败' })
+        res.json({ status: 0, message: '修改成功' })
     })
 })
 
@@ -106,8 +106,8 @@ router.post('/delete', (req, res) => {
     const { id } = req.body
     const sqlStr = `update articles set isDelete=1 where id=${id}`
     conn.query(sqlStr, (err, result) => {
-        if (err) return res.json({ msg: '服务器错误' })
-        res.json({ msg: '删除成功' })
+        if (err) return res.json({ status: 1, msg: '服务器错误' })
+        res.json({ status: 0, msg: '删除成功' })
     })
 })
 
